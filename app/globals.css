@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------
+   AgriJump — vintage campus global styles
+   --------------------------------------------------------------- */
+
+:root {
+  --aj-grain-opacity: 0.5;
+  --aj-map-filter: sepia(0.32) saturate(0.82) contrast(1.06) brightness(1.03);
+}
+
+.dark {
+  --aj-grain-opacity: 0.24;
+  --aj-map-filter: grayscale(0.45) sepia(0.18) contrast(1.22) brightness(0.68)
+    saturate(1.15);
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper-100 text-ink-700 font-sans antialiased dark:bg-ink-900 dark:text-paper-100;
+    overscroll-behavior-y: none;
+    /* Kill rubber-band scrolling on mobile for a native-app feel */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-extrabold tracking-tight;
+  }
+
+  button {
+    @apply select-none;
+  }
+}
+
+@layer components {
+  /* Film grain overlay */
+  .film-grain::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: var(--aj-grain-opacity);
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+  }
+
+  /* Capsule category tag */
+  .capsule {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide;
+  }
+
+  /* Hide the scrollbar but keep scrolling (horizontal card rail) */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* iOS safe area */
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
+  .pt-safe {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Leaflet map: film filter + custom emoji pins
+   --------------------------------------------------------------- */
+
+.leaflet-container {
+  background: #dfe3d3;
+  font-family: inherit;
+  outline: none;
+}
+
+.leaflet-tile-pane {
+  filter: var(--aj-map-filter);
+  transition: filter 0.3s ease;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  color: #555 !important;
+}
+
+.dark .leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.45) !important;
+  color: #bbb !important;
+}
+
+.dark .leaflet-control-attribution a {
+  color: #ddd !important;
+}
+
+/* Map pin */
+.aj-pin-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.aj-pin {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff;
+  border: 2.5px solid var(--pin-color, #6a8343);
+  box-shadow: 0 6px 14px rgba(24, 28, 16, 0.3);
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.aj-pin::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--pin-color, #6a8343);
+}
+
+.aj-pin.is-active {
+  transform: scale(1.22);
+  border-color: #ff7f26;
+  box-shadow: 0 10px 20px rgba(255, 127, 38, 0.45);
+  z-index: 500;
+}
+
+.aj-pin.is-active::after {
+  border-top-color: #ff7f26;
+}
+
+.aj-pin__ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  border: 2px solid #ff7f26;
+  animation: aj-pulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes aj-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+/* My location pulse dot */
+.aj-me {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #2f6df6;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.aj-me::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 999px;
+  background: rgba(47, 109, 246, 0.28);
+  animation: aj-pulse 2s ease-out infinite;
+}
