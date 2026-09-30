@@ -30,9 +30,18 @@ export default function EventCard({ event, active = false }: EventCardProps) {
 
   return (
     <article
+      role="button"
+      tabIndex={0}
       onClick={() => {
         setActiveId(event.id);
         router.push(`/e/${event.id}`);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setActiveId(event.id);
+          router.push(`/e/${event.id}`);
+        }
       }}
       className={clsx(
         'group w-[252px] shrink-0 snap-start cursor-pointer overflow-hidden rounded-card bg-white shadow-soft transition-all duration-300 dark:bg-ink-800',
@@ -47,14 +56,16 @@ export default function EventCard({ event, active = false }: EventCardProps) {
           className="absolute inset-0 bg-gradient-to-br from-moss-500 to-moss-700"
           aria-hidden
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={event.cover}
-          alt={event.title}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="relative h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {event.cover && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.cover}
+            alt={event.title}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="relative h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
         <div
           className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"
           aria-hidden

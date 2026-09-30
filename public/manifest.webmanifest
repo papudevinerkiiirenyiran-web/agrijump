@@ -1,7 +1,7 @@
 {
-  "name": "AgriJump — Campus drops",
+  "name": "AgriJump — Campus Drops",
   "short_name": "AgriJump",
-  "description": "Find your next drop on campus and jump in.",
+  "description": "Find your next campus drop and jump in.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -34,7 +34,7 @@
     {
       "name": "Open the map",
       "short_name": "Map",
-      "description": "See drops happening near you",
+      "description": "See drops happening around campus",
       "url": "/",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }

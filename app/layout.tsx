@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Figtree } from 'next/font/google';
 import './globals.css';
 import { EventsProvider } from '@/lib/store';
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar';
+import ViewportSync from '@/components/ViewportSync';
 import { themeInitScript } from '@/lib/theme';
 
 const display = Bricolage_Grotesque({
@@ -18,9 +19,9 @@ const body = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: 'AgriJump — Find your next drop on campus',
+  title: 'AgriJump — Find your next campus drop',
   description:
-    'Find drops around the Agripolis campus and jump in. Frisbee, coffee, open mic, film walks.',
+    'Campus drops at Agripolis, Legnaro. Coffee between lectures, frisbee on the lawn, a study session, an open mic — find one and jump in.',
   manifest: '/manifest.webmanifest',
   applicationName: 'AgriJump',
   appleWebApp: {
@@ -57,9 +58,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${display.variable} ${body.variable} film-grain`}>
         {/* App Shell: full width on mobile, collapsed to a 480px phone column on desktop */}
-        <div className="relative mx-auto min-h-[100dvh] w-full max-w-[480px] bg-paper-100 shadow-soft-lg dark:bg-ink-900 sm:border-x sm:border-black/5 dark:sm:border-white/[0.06]">
+        <div className="relative mx-auto min-h-app w-full max-w-[480px] bg-paper-100 shadow-soft-lg dark:bg-ink-900 sm:border-x sm:border-black/5 dark:sm:border-white/[0.06]">
           <EventsProvider>{children}</EventsProvider>
         </div>
+        <ViewportSync />
         <ServiceWorkerRegistrar />
       </body>
     </html>

@@ -20,7 +20,7 @@ export default function DropZone({ id }: { id: string }) {
 
   if (!event) {
     return (
-      <div className="grid min-h-[100dvh] place-items-center px-8 text-center">
+      <div className="grid min-h-app place-items-center px-8 text-center">
         <div>
           <p className="text-5xl" aria-hidden>
             🥏
@@ -57,20 +57,22 @@ export default function DropZone({ id }: { id: string }) {
   };
 
   return (
-    <div className="relative min-h-[100dvh]">
+    <div className="relative min-h-app">
       {/* Immersive hero */}
       <div className="relative h-[46vh] w-full overflow-hidden bg-moss-700">
         <div
           className="absolute inset-0 bg-gradient-to-br from-moss-600 via-moss-700 to-ink-800"
           aria-hidden
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={event.cover}
-          alt={event.title}
-          className="relative h-full w-full object-cover"
-          referrerPolicy="no-referrer"
-        />
+        {event.cover && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.cover}
+            alt={event.title}
+            className="relative h-full w-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        )}
         {/* Subtle black gradient scrim */}
         <div
           className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/45"
@@ -127,9 +129,16 @@ export default function DropZone({ id }: { id: string }) {
             <p className="font-display text-[16px] font-extrabold text-ink-700 dark:text-paper-100">
               {event.host.name}
             </p>
-            <p className="mt-0.5 truncate text-[12px] text-ink-400 dark:text-paper-300/60">
-              {event.host.bio}
-            </p>
+            {event.host.major?.trim() ? (
+              <p className="mt-0.5 truncate text-[12px] font-semibold text-moss-600 dark:text-moss-300">
+                {event.host.major}
+              </p>
+            ) : null}
+            {event.host.bio?.trim() ? (
+              <p className="mt-0.5 truncate text-[12px] text-ink-400 dark:text-paper-300/60">
+                {event.host.bio}
+              </p>
+            ) : null}
           </div>
         </div>
 

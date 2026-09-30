@@ -1,4 +1,4 @@
-import { CATEGORY_MAP } from './types';
+import { CAMPUS_CENTER, CATEGORY_MAP } from './types';
 import type { CampusEvent, Participant, RawEventRow } from './types';
 
 /**
@@ -63,8 +63,8 @@ export function rowToEvent(row: RawEventRow, index = 0): CampusEvent {
     emoji: row.emoji ?? meta?.emoji ?? '📍',
     location: {
       name: row.place_name ?? 'Agripolis',
-      lat: toNumber(row.lat, 45.3461),
-      lng: toNumber(row.lng, 11.9536),
+      lat: toNumber(row.lat, CAMPUS_CENTER.lat),
+      lng: toNumber(row.lng, CAMPUS_CENTER.lng),
     },
     startsAt: row.starts_at,
     durationMin: toNumber(row.duration_min, 120),

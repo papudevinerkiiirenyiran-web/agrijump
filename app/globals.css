@@ -22,16 +22,21 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  html,
-  body {
+  html {
     height: 100%;
+    /* Stop iOS Safari from inflating text in landscape */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
+    height: 100%;
     @apply bg-paper-100 text-ink-700 font-sans antialiased dark:bg-ink-900 dark:text-paper-100;
     overscroll-behavior-y: none;
     /* Kill rubber-band scrolling on mobile for a native-app feel */
     -webkit-font-smoothing: antialiased;
+    /* iOS: stop long-press callout and text selection on chrome elements */
+    -webkit-touch-callout: none;
   }
 
   h1,
@@ -40,8 +45,42 @@
     @apply font-display font-extrabold tracking-tight;
   }
 
-  button {
-    @apply select-none;
+  /* iOS only honours :active when the element is "clickable" —
+     cursor:pointer + touch-action:manipulation fixes both that and double-tap zoom */
+  button,
+  a,
+  [role='button'],
+  [onclick] {
+    @apply cursor-pointer select-none;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   iOS viewport height — three-layer fallback
+   dvh is only supported on iOS 16.4+; --vh is set by ViewportSync
+   --------------------------------------------------------------- */
+@layer utilities {
+  .h-app {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    height: 100dvh;
+  }
+
+  .min-h-app {
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
+    min-height: 100dvh;
+  }
+
+  .top-safe {
+    top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+  }
+
+  .top-safe-lg {
+    top: calc(env(safe-area-inset-top, 0px) + 4.75rem);
   }
 }
 
@@ -51,7 +90,8 @@
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 60;
+    /* Above every layer so the grain reads as one film over the whole app */
+    z-index: 9999;
     pointer-events: none;
     opacity: var(--aj-grain-opacity);
     mix-blend-mode: multiply;
@@ -63,10 +103,12 @@
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide;
   }
 
-  /* Hide the scrollbar but keep scrolling (horizontal card rail) */
+  /* Hide the scrollbar but keep scrolling (horizontal card rail).
+     -webkit-overflow-scrolling gives iOS its momentum back. */
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -79,6 +121,85 @@
   .pt-safe {
     padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
   }
+  .px-safe {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Form input — readable on iOS (16px minimum kills the auto-zoom on focus) */
+  .aj-input {
+    width: 100%;
+    border-radius: 14px;
+    background: #fff;
+    padding: 0.75rem 0.875rem;
+    font-size: 16px;
+    line-height: 1.2;
+    color: var(--color-ink-700);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .aj-input:focus {
+    border-color: #ff7f26;
+    box-shadow: 0 0 0 3px rgba(255, 127, 38, 0.18);
+  }
+  .dark .aj-input {
+    background: #1c2016;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--color-paper-100);
+  }
+
+  /* Bottom sheet: unitless numbers × viewport unit, with the same
+     three-layer fallback so iOS < 16.4 (no dvh) still positions correctly */
+  .aj-sheet {
+    height: calc(var(--sheet-h, 86) * 1vh);
+    height: calc(var(--sheet-h, 86) * var(--vh, 1vh));
+    height: calc(var(--sheet-h, 86) * 1dvh);
+
+    transform: translate3d(
+      0,
+      calc(var(--sheet-offset, 44) * 1vh + var(--sheet-drag, 0px)),
+      0
+    );
+    transform: translate3d(
+      0,
+      calc(var(--sheet-offset, 44) * var(--vh, 1vh) + var(--sheet-drag, 0px)),
+      0
+    );
+    transform: translate3d(
+      0,
+      calc(var(--sheet-offset, 44) * 1dvh + var(--sheet-drag, 0px)),
+      0
+    );
+  }
+
+  .aj-sheet--animated {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Bottom-sheet grab handle. Keep pointer events exclusively for JS —
+     no native scroll/zoom on iOS Safari. */
+  .aj-grab {
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .aj-grab:active {
+    cursor: grabbing;
+  }
+  .aj-chev {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    letter-spacing: 0.15em;
+    padding: 0 0.15em;
+  }
+  .aj-chev.is-up {
+    transform: rotate(180deg);
+  }
 }
 
 /* ---------------------------------------------------------------
@@ -89,6 +210,12 @@
   background: #dfe3d3;
   font-family: inherit;
   outline: none;
+  /* iOS: stop text/image selection while panning the map */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* iOS: let Leaflet handle all touch gestures on the map instead of the browser */
+  touch-action: none;
 }
 
 .leaflet-tile-pane {
@@ -174,6 +301,17 @@
     transform: scale(1.7);
     opacity: 0;
   }
+}
+
+/* Pin chosen by the user inside the drop form */
+.aj-pin-pick {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px 999px 999px 0;
+  transform: rotate(-45deg);
+  background: #ff7f26;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px rgba(24, 28, 16, 0.35);
 }
 
 /* My location pulse dot */
