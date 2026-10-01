@@ -8,6 +8,7 @@ import BottomSheet from '@/components/BottomSheet';
 import EmptyGuide from '@/components/EmptyGuide';
 import EventCard from '@/components/EventCard';
 import FilterChips from '@/components/FilterChips';
+import HowItWorks from '@/components/HowItWorks';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useEvents } from '@/lib/store';
 
@@ -148,11 +149,11 @@ export default function DiscoverPage() {
                     {visible.length} live
                   </span>
                 </div>
-                <p className="mt-1 text-[12px] text-ink-400 dark:text-paper-300/60">
-                  {expanded
-                    ? 'Drag the handle down to see the map'
-                    : 'Swipe cards · tap a pin · jump in'}
-                </p>
+                {/* How it works — always visible, so the guide is still
+                    there once drops start arriving. Replaces the old
+                    one-line swipe hint, which the handle chevron already
+                    conveys. */}
+                <HowItWorks />
               </div>
 
               <div className="px-4 pb-3">
